@@ -1,0 +1,22 @@
+{
+  "name": "Formulation Calculator",
+  "short_name": "Formula Calculator",
+  "start_url": "formulation_calculator.html",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "test-tube.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "test-tube.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#17ceb4",
+  "background_color": "#181e37",
+  "display": "standalone"
+}
+

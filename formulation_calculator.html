@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Formulation Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e4e6ea;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #b8bcc8;
+            font-size: 0.95rem;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #e4e6ea;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .ingredients-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ingredients-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ingredients-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e4e6ea;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-add {
+            width: 20%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-ingredient-container {
+            display: flex;
+            width: 50%;
+        }
+
+        .btn-ingredient-container > * {
+            margin-left : 30px;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e4e6ea;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .ingredient-row {
+            display: grid;
+            grid-template-columns: auto 2fr 3fr 1.5fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-row:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .ingredient-id {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.95rem;
+        }
+
+        .calculated-weight {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .totals-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .total-item {
+            text-align: center;
+        }
+
+        .total-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-label {
+            color: #b8bcc8;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            .ingredient-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Smooth Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> 🧪 Formulation Calculator</h1>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="formulaName">Formula Name</label>
+                <input type="text" id="formulaName" placeholder="Enter formula name" value="Sample Formula">
+            </div>
+            <div class="form-group">
+                <label for="batchWeight">Batch Weight (gr)</label>
+                <input type="number" id="batchWeight" placeholder="Enter batch weight" value="100" step="0.01">
+            </div>
+        </div>
+
+        <div class="ingredients-section">
+            <div class="ingredients-header">
+                <h3>Ingredients</h3>
+                <div class="btn-ingredient-container">
+                     <button class="btn btn-warning" onclick="renderIngredients()">
+                        ⟳ Reload
+                    </button>
+                    <button class="btn btn-primary" onclick="addIngredient()">
+                        + Add Ingredient
+                    </button>   
+                </div>
+               
+            </div>
+            
+            <div id="ingredientsList">
+                <!-- Ingredients will be added here -->
+            </div>
+        </div>
+
+        <div class="totals-section">
+            <div class="totals-grid">
+                <div class="total-item">
+                    <div class="total-value" id="totalPercentage">0%</div>
+                    <div class="total-label">Total Percentage</div>
+                </div>
+                <div class="total-item">
+                    <div class="total-value" id="totalWeight">0 gr</div>
+                    <div class="total-label">Total Weight</div>
+                </div>
+                <div class="total-item">
+                    <div class="total-value" id="ingredientCount">0</div>
+                    <div class="total-label">Ingredients</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn btn-primary" onclick="generatePDF()">
+                📄 Export to PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let ingredients = [];
+        let ingredientCounter = 1;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered: ', registration);
+                })
+                .catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+
+
+        function addIngredient() {
+            const newIngredient = {
+                id: '',
+                name: '',
+                percentage: 0
+            };
+            ingredients.push(newIngredient);
+            ingredientCounter++;
+            renderIngredients();
+            calculateTotals();
+            focusFirst();
+        }
+
+        function focusFirst(){
+            const container = document.getElementById('ingredientsList');
+            container.children[0].children[1].focus();
+        }
+
+        function removeIngredient(index) {
+            ingredients.splice(index, 1);
+            renderIngredients();
+            calculateTotals();
+        }
+
+        function updateIngredient(index, field, value) {
+            if (field === 'percentage') {
+                value = parseFloat(value) || 0;
+            }
+            ingredients[index][field] = value;
+            calculateTotals();
+            
+            // Update the calculated weight display
+            const batchWeight = parseFloat(document.getElementById('batchWeight').value) || 0;
+            const calculatedWeight = (value * batchWeight / 100).toFixed(3);
+            if (field === 'percentage') {
+                document.querySelector(`#ingredient-${index} .calculated-weight`).textContent = `${calculatedWeight} gr`;
+            }
+
+            renderRow(index, field, value);
+        }
+
+        function renderIngredients() {
+            ingredients.sort((a, b) => a.percentage - b.percentage);
+
+            const container = document.getElementById('ingredientsList');
+            container.innerHTML = '';
+
+            ingredients.forEach((ingredient, index) => {
+                const batchWeight = parseFloat(document.getElementById('batchWeight').value) || 0;
+                const calculatedWeight = (ingredient.percentage * batchWeight / 100).toFixed(3);
+
+                const row = document.createElement('div');
+                row.className = 'ingredient-row fade-in';
+                row.id = `ingredient-${index}`;
+                row.innerHTML = `
+                    <div class="ingredient-id">${ingredient.id}</div>
+                    <input type="text" value="${ingredient.id}" 
+                           placeholder="Ingredient ID" 
+                           onchange="updateIngredient(${index}, 'id', this.value)">
+                    <input type="text" value="${ingredient.name}" 
+                           placeholder="Ingredient name" 
+                           onchange="updateIngredient(${index}, 'name', this.value)">
+                    <input type="number" value="${ingredient.percentage}" 
+                           placeholder="Percentage" 
+                           step="0.01"
+                           onchange="updateIngredient(${index}, 'percentage', this.value)">
+                    <div class="calculated-weight">${calculatedWeight} gr</div>
+                    <button class="btn btn-danger" onclick="removeIngredient(${index})">
+                        ✕
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderRow(index, field, value) {
+            const container = document.getElementById('ingredientsList');
+            const ingredient = ingredients[index];
+            row = container.children[index];
+            row.children[0].innerHTML = ingredient.id;
+        }
+
+        function calculateTotals() {
+            const batchWeight = parseFloat(document.getElementById('batchWeight').value) || 0;
+            
+            const totalPercentage = ingredients.reduce((sum, ing) => sum + (parseFloat(ing.percentage) || 0), 0);
+            const totalWeight = (totalPercentage * batchWeight / 100);
+            
+            document.getElementById('totalPercentage').textContent = `${totalPercentage.toFixed(2)}%`;
+            document.getElementById('totalWeight').textContent = `${totalWeight.toFixed(3)} gr`;
+            document.getElementById('ingredientCount').textContent = ingredients.length;
+
+            // Update all calculated weights when batch weight changes
+            ingredients.forEach((ingredient, index) => {
+                const calculatedWeight = (ingredient.percentage * batchWeight / 100).toFixed(3);
+                const weightElement = document.querySelector(`#ingredient-${index} .calculated-weight`);
+                if (weightElement) {
+                    weightElement.textContent = `${calculatedWeight} gr`;
+                }
+            });
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all ingredients?')) {
+                ingredients = [];
+                ingredientCounter = 1;
+                renderIngredients();
+                calculateTotals();
+            }
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const formulaName = document.getElementById('formulaName').value || 'Untitled Formula';
+            const batchWeight = document.getElementById('batchWeight').value || '0';
+
+            // Header
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text('Formulation Calculator Report', 20, 20);
+
+            // Formula details
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Formula Name: ${formulaName}`, 20, 40);
+            doc.text(`Batch Weight: ${batchWeight} gr`, 20, 50);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 60);
+
+            // Table header
+            doc.setFont(undefined, 'bold');
+            doc.text('ID', 20, 80);
+            doc.text('Ingredient', 50, 80);
+            doc.text('Percentage (%)', 120, 80);
+            doc.text('Weight (kg)', 160, 80);
+
+            // Draw line under header
+            doc.line(20, 82, 190, 82);
+
+            // Ingredients
+            doc.setFont(undefined, 'normal');
+            let yPosition = 90;
+            ingredients.forEach((ingredient) => {
+                const calculatedWeight = (ingredient.percentage * parseFloat(batchWeight) / 100).toFixed(3);
+                
+                doc.text(ingredient.id, 20, yPosition);
+                doc.text(ingredient.name || 'Unnamed', 50, yPosition);
+                doc.text(ingredient.percentage.toString(), 125, yPosition);
+                doc.text(calculatedWeight, 165, yPosition);
+                
+                yPosition += 10;
+            });
+
+            // Totals
+            yPosition += 10;
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
+            
+            const totalPercentage = ingredients.reduce((sum, ing) => sum + (parseFloat(ing.percentage) || 0), 0);
+            const totalWeight = (totalPercentage * parseFloat(batchWeight) / 100).toFixed(3);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('TOTALS:', 20, yPosition);
+            doc.text(`${totalPercentage.toFixed(2)}%`, 125, yPosition);
+            doc.text(`${totalWeight} gr`, 165, yPosition);
+
+            // Save PDF
+            doc.save(`${formulaName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.pdf`);
+
+            // Show success message
+            showSuccessMessage('PDF generated successfully!');
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success fade-in';
+            successDiv.textContent = message;
+            document.querySelector('.container').insertBefore(successDiv, document.querySelector('.actions'));
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById('batchWeight').addEventListener('input', calculateTotals);
+    </script>
+</body>
+</html>
