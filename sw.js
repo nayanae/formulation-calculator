@@ -1,7 +1,11 @@
-const CACHE_NAME = 'formulation-calculator';
+const CACHE_NAME = 'formulation-calculator-v1';
 const urlsToCache = [
-  '/',
-  '/index.html'
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // Install event
@@ -12,15 +16,22 @@ self.addEventListener('install', event => {
   );
 });
 
+// Activate event (clear old caches)
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+      );
+    })
+  );
+});
+
 // Fetch event
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      }
-    )
+      .then(response => response || fetch(event.request))
   );
-
 });
