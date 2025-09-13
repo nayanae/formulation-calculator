@@ -1,7 +1,7 @@
 const CACHE_NAME = 'formulation-calculator';
 const urlsToCache = [
   '/',
-  '/formulation_calculator.html'
+  '/index.html'
 ];
 
 // Install event
@@ -22,4 +22,5 @@ self.addEventListener('fetch', event => {
       }
     )
   );
+
 });
